@@ -1,0 +1,472 @@
+procedure modgrafic;
+var gd,gm:integer;
+begin
+     gd:=detect;
+     initgraph(gd, gm, '');
+
+end;
+
+procedure afiszona(var z:zona);
+begin
+     with z do
+          begin
+               setfillstyle(solidfill,cul);
+               bar(x1,y1,x2,y2);
+          end;
+
+end;
+
+procedure scrietext(s:string; x,y,c:integer);
+begin
+     setcolor(c);
+     outtextxy(x,y,s);
+end;
+
+procedure citire(Var a,b:matrice);
+Var i,j:byte;
+Begin
+     for i:=1 to 9 do
+         for j:=1 to 9 do read(f, a[i,j]);
+     for i:=1 to 9 do
+         for j:=1 to 9 do read(f, b[i,j]);
+End;
+
+procedure pag1;
+begin
+     cleardevice;
+     afiszona(sus);
+     afiszona(stanga);
+     afiszona(main);
+     afiszona(dreapta);
+     setbkcolor(lightgray);
+     settextstyle(0,0,5);
+     scrietext('SUDOKU',200,40,cyan);
+     settextstyle(0,0,3);
+     scrietext('TANT',60,250,cyan);
+     scrietext('RARES',50,300,cyan);
+     settextstyle(0,0,3);
+     scrietext('CLASA',470,250,cyan);
+     scrietext('A XII-A',450,300,cyan);
+     settextstyle(0,0,2);
+     pune_buton(biesire);
+     pune_buton(bintrare);
+     pune_buton(bscoruri);
+     mouseon;
+end;
+
+Procedure dificultate;
+Begin
+     repeat
+           ales:=false;
+           if buton_apasat(busor) then
+              begin
+                   dif:=1;
+                   ales:=true;
+              end;
+           if buton_apasat(bmediu) then
+              begin
+                   dif:=2;
+                   ales:=true;
+              end;
+           if buton_apasat(bgreu) then
+              begin
+                   dif:=3;
+                   ales:=true;
+              end;
+     until  ales;
+End;
+
+
+procedure pag2;
+begin
+     mouseoff;
+     cleardevice;
+     settextstyle(0,0,3);
+     scrietext('ALEGETI DIFICULTATEA:',100,40,cyan);
+     settextstyle(0,0,2);
+     pune_buton(busor);
+     pune_buton(bmediu);
+     pune_buton(bgreu);
+     mouseon;
+     dificultate;
+end;
+
+Procedure cronometru;
+Begin
+     gettime(h2,m2,s2,ms2);
+     if difr<>s2-s1 then
+        begin
+             afiszona(timer);
+             timp:=h2*3600+m2*60+s2-h1*3600-m1*60-s1-pauza;
+             str(timp div 3600,h); str(timp div 60,m); str(timp mod 60,sec);
+             if timp>600 then
+                if timp mod 60<10 then ora:='0'+h+':'+m+':0'+sec
+                else ora:='0'+h+':'+m+':'+sec
+             else
+                 if timp mod 60<10 then ora:='0'+h+':0'+m+':0'+sec
+                 else ora:='0'+h+':0'+m+':'+sec;
+             difr:=s2-s1;
+             scrietext(ora,35,430,darkgray);
+     end;
+End;
+
+Procedure citirescor(x,y:integer);
+Var nume,timp:string[20];
+    s:string;
+Begin
+     while not eof(f) do
+           begin
+                readln(f,nume);
+                while length(nume)<15 do nume:=nume+' ';
+                readln(f,timp);
+                s:=nume+' '+timp;
+                settextstyle(0,0,1);
+                scrietext(s,x,y,white);
+                y:=y+10;
+           end;
+End;
+
+function ReadString(x, y, width, maxchar, col:integer; t:string):string;
+var s:string; oldcol:integer;
+    xb, xc, yc:integer;
+    c:char;
+procedure Cursor(x, y, col:integer);
+var oldcol:integer;
+begin
+     oldcol:=GetColor;
+     SetColor(col);
+     Line(x, y, x, y+10);
+     SetColor(oldcol);
+end;
+
+begin
+     oldcol:=GetColor;
+     SetColor(col);
+     {outTextXY(x, y, t);}
+     xb := x + TextWidth(t) + 3;
+     Rectangle(xb, y - 4, xb + width, y + 10);
+     s:='';
+     xc:=xb + 3; yc:=y-2;
+     repeat
+           Cursor(xc, yc, yellow);
+           c:=Readkey; if c=#0 then c:=Readkey;
+           if c in ['0'..'9','a'..'z', 'A'..'Z', ' '] then
+              begin
+                   if Length(s) < maxchar then
+                      begin
+                           s:=s+c;
+                           SetFillStyle(SolidFill, GetBkColor);
+                           Bar(xb+1, y-3, xb+width-1, y+9);
+                           OutTextXY(xb + 4, y, s);
+                           Cursor(xc, yc, GetBkColor);
+                           xc := xc + TextWidth(c);
+                      end;
+              end
+           else
+               if (c=#8) AND (Length(s) > 0) then
+                  begin
+                       Cursor(xc, yc, GetBkColor);
+                       xc := xc - TextWidth(s[Length(s)]);
+                       Delete(s, Length(s), 1);
+                       SetFillStyle(SolidFill, GetBkColor);
+                       Bar(xb+1, y-3, xb+width-1, y+9);
+                       OutTextXY(xb + 4, y, s);
+                  end;
+     until c=#13;
+     SetColor(oldcol);
+     Cursor(xc, yc, GetBkColor);
+     ReadString:=s;
+end;
+
+
+procedure pag3;
+begin
+     mouseoff;
+     cleardevice;
+     {orizontale}
+     afiszona(joc);
+     setcolor(darkgray);
+     SetLineStyle(0,0,ThickWidth);
+     line(25,25,290,25);
+     line(25,25,25,290);
+     SetLineStyle(0,0,NormWidth);
+     line(25,53,290,53);
+     line(25,83,290,83);
+     SetLineStyle(0,0,ThickWidth);
+     line(25,113,290,113);
+     SetLineStyle(0,0,NormWidth);
+     line(25,143,290,143);
+     line(25,173,290,173);
+     SetLineStyle(0,0,ThickWidth);
+     line(25,203,290,203);
+     SetLineStyle(0,0,NormWidth);
+     line(25,233,290,233);
+     line(25,263,290,263);
+     {verticale}
+     line(53,25,53,290);
+     line(83,25,83,290);
+     SetLineStyle(0,0,ThickWidth);
+     line(113,25,113,290);
+     SetLineStyle(0,0,NormWidth);
+     line(143,25,143,290);
+     line(173,25,173,290);
+     SetLineStyle(0,0,ThickWidth);
+     line(203,25,203,290);
+     SetLineStyle(0,0,NormWidth);
+     line(233,25,233,290);
+     line(263,25,263,290);
+     SetLineStyle(0,0,ThickWidth);
+     line(290,25,290,290);
+     line(25,290,290,290);
+     y:=0; n:=0;
+     for i:=1 to 9 do
+         begin
+              y:=y+30; x:=30;
+              for j:=1 to 9 do
+                  begin
+                       if a[i,j]<>0 then
+                          begin
+                               setcolor(darkgray);
+                               str(a[i,j],s);
+                               outtextxy(x,y,s);
+                          end
+                       else
+                           begin
+                                setcolor(darkgray);
+                                n:=n+1;
+                                v[n].but.x1:=x-4;
+                                v[n].but.x2:=x+19;
+                                v[n].but.y1:=y-4;
+                                v[n].but.y2:=y+19;
+                                v[n].but.t:='';
+                                v[n].but.bcolor:=cyan;
+                                v[n].but.tcolor:=cyan;
+                                v[n].val:=0;
+                                pune_buton(v[n].but);
+                           end;
+                       x:=x+30;
+                  end;
+         end;
+     setcolor(darkgray);
+     SetLineStyle(0,0,ThickWidth);
+     line(25,25,290,25);
+     line(25,25,25,290);
+     line(25,113,290,113);
+     line(25,203,290,203);
+     line(113,25,113,290);
+     line(203,25,203,290);
+     line(290,25,290,290);
+     line(25,290,290,290);
+     afiszona(timer);
+     pune_buton(biesire2);
+     pune_buton(bmeniu);
+     pune_buton(testare);
+     pune_buton(gata2);
+     pune_buton(pause);
+     mouseon;
+     gata1:=false;
+     schimb:=false;
+     gettime(h1,m1,s1,ms1);
+     difr:=61;
+     pauza:=0;
+     repeat
+           cronometru;
+           if buton_apasat(bmeniu) then gata1:=true;
+           if buton_apasat(biesire2) then gata:=true;
+           for i:=1 to n do
+               if buton_apasat(v[i].but) then
+                  begin
+                       mouseoff;
+                       setcolor(darkgray);
+                       inc(v[i].val);
+                       if v[i].val=10 then v[i].val:=0;
+                       str(v[i].val,valo);
+                       if valo='0' then outtextxy(v[i].but.x1+10,v[i].but.y1+5,'')
+                       else outtextxy(v[i].but.x1+5,v[i].but.y1+5,valo);
+                       setcolor(darkgray);
+                       SetLineStyle(0,0,ThickWidth);
+                       line(25,25,290,25);
+                       line(25,25,25,290);
+                       line(25,113,290,113);
+                       line(25,203,290,203);
+                       line(113,25,113,290);
+                       line(203,25,203,290);
+                       line(290,25,290,290);
+                       line(25,290,290,290);
+                       delay(50); mouseon;
+                  end;
+                  if buton_apasat(testare) then
+                     begin
+                          k:=1;
+                          for i:=1 to 9 do
+                              for j:=1 to 9 do
+                                  if a[i,j]=0 then
+                                     if v[k].val<>b[i,j] then
+                                        begin
+                                             SetLineStyle(0,0,NormWidth);
+                                             setcolor(red);
+                                             rectangle(v[k].but.x1,v[k].but.y1,v[k].but.x2,v[k].but.y2);
+                                             k:=k+1;
+                                        end
+                                     else
+                                         begin
+                                              SetLineStyle(0,0,NormWidth);
+                                              setcolor(blue);
+                                              rectangle(v[k].but.x1,v[k].but.y1,v[k].but.x2,v[k].but.y2);
+                                              k:=k+1;
+                                         end;
+                     end;
+                  if buton_apasat(gata2) then
+                     begin
+                          k:=1; sem:=true;
+                          for i:=1 to 9 do
+                              for j:=1 to 9 do
+                                  if a[i,j]=0 then
+                                     if (v[k].val<>b[i,j]) and (sem) then sem:=false
+                                     else k:=k+1;
+                          if sem=true then
+                             begin
+                                  afiszona(sfarsit);
+                                  settextstyle(0,0,2);
+                                  scrietext('Ai terminat',370,40,darkgray);
+                                  pune_buton(salveaza);
+                                  pune_buton(schimba);
+                                  repeat
+                                        cronometru;
+                                        if buton_apasat(salveaza) then
+                                           begin
+                                                if dif=1 then
+                                                   begin
+                                                        assign(f,'susor.in'); reset(f);
+                                                        z:=0;
+                                                        while not eof(f) do
+                                                              begin
+                                                                   z:=z+1;
+                                                                   readln(f,vs[z].nume);
+                                                                   readln(f,vs[z].timp);
+                                                              end;
+                                                        z:=z+1;
+                                                        settextstyle(0,0,1);
+                                                        vs[z].nume:=readstring(370,70,162,15,darkgray,'');
+                                                        vs[z].timp:=ora;
+                                                        for i:=1 to z-1 do
+                                                            for j:=i+1 to z do
+                                                                if vs[i].timp>vs[j].timp then
+                                                                   begin
+                                                                        aux:=vs[i];
+                                                                        vs[i]:=vs[j];
+                                                                        vs[j]:=aux;
+                                                                   end;
+                                                        close(f);
+                                                        assign(f,'susor.in'); rewrite(f);
+                                                        for i:=1 to z do
+                                                            begin
+                                                                 writeln(f, vs[i].nume);
+                                                                 writeln(f, vs[i].timp);
+                                                            end;
+                                                        settextstyle(0,0,2);
+                                                        close(f);
+                                                        gata1:=true;
+                                                   end;
+                                                if dif=2 then
+                                                   begin
+                                                        assign(f,'smediu.in'); reset(f);
+                                                        z:=0;
+                                                        while not eof(f) do
+                                                              begin
+                                                                   z:=z+1;
+                                                                   readln(f,vs[z].nume);
+                                                                   readln(f,vs[z].timp);
+                                                              end;
+                                                        z:=z+1;
+                                                        settextstyle(0,0,1);
+                                                        vs[z].nume:=readstring(370,70,162,15,darkgray,'');
+                                                        vs[z].timp:=ora;
+                                                        for i:=1 to z-1 do
+                                                            for j:=i+1 to z do
+                                                                if vs[i].timp>vs[j].timp then
+                                                                   begin
+                                                                        aux:=vs[i];
+                                                                        vs[i]:=vs[j];
+                                                                        vs[j]:=aux;
+                                                                   end;
+                                                        close(f);
+                                                        assign(f,'smediu.in'); rewrite(f);
+                                                        for i:=1 to z do
+                                                            begin
+                                                                 writeln(f, vs[i].nume);
+                                                                 writeln(f, vs[i].timp);
+                                                            end;
+                                                        settextstyle(0,0,2);
+                                                        close(f);
+                                                        gata1:=true;
+                                                   end;
+                                                if dif=3 then
+                                                   begin
+                                                        assign(f,'sgreu.in'); reset(f);
+                                                        z:=0;
+                                                        while not eof(f) do
+                                                              begin
+                                                                   z:=z+1;
+                                                                   readln(f,vs[z].nume);
+                                                                   readln(f,vs[z].timp);
+                                                              end;
+                                                        z:=z+1;
+                                                        settextstyle(0,0,1);
+                                                        vs[z].nume:=readstring(370,70,162,15,darkgray,'');
+                                                        vs[z].timp:=ora;
+                                                        for i:=1 to z-1 do
+                                                            for j:=i+1 to z do
+                                                                if vs[i].timp>vs[j].timp then
+                                                                   begin
+                                                                        aux:=vs[i];
+                                                                        vs[i]:=vs[j];
+                                                                        vs[j]:=aux;
+                                                                   end;
+                                                        close(f);
+                                                        assign(f,'sgreu.in'); rewrite(f);
+                                                        for i:=1 to z do
+                                                            begin
+                                                                 writeln(f, vs[i].nume);
+                                                                 writeln(f, vs[i].timp);
+                                                            end;
+                                                        settextstyle(0,0,2);
+                                                        close(f);
+                                                        gata1:=true;
+                                                   end;
+                                           end;
+                                        if buton_apasat(schimba) then schimb:=true;
+                                  until schimb or gata1;
+                                  gata1:=true;
+                             end
+                          else
+                              begin
+                                   afiszona(sfarsit);
+                                   settextstyle(0,0,2);
+                                   scrietext('N-ai terminat',370,40,darkgray);
+                                   pune_buton(continua);
+                                   pune_buton(schimba);
+                                   repeat
+                                         cronometru;
+                                         if buton_apasat(bmeniu) then gata1:=true;
+                                         if buton_apasat(biesire2) then gata:=true;
+                                         if buton_apasat(schimba) then schimb:=true;
+                                   until (buton_apasat(continua)) or (gata1=true) or (gata=true) or (schimb=true);
+                              end;
+                          mouseoff;
+                          afiszona(sfarsit1);
+                          mouseon;
+                          settextstyle(0,0,2);
+                     end;
+                         if buton_apasat(pause) then
+                            begin
+                                 pune_buton(start);
+                                 repeat
+                                       gettime(hd,md,sd,msd);
+                                       cpauza:=hd*3600+md*60+sd-h2*3600-m2*60-s2;
+                                 until buton_apasat(start);
+                                 pauza:=pauza+cpauza;
+                                 pune_buton(pause);
+                            end;
+     until gata or gata1 or schimb;
+end;
